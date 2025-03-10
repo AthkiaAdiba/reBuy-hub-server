@@ -11,7 +11,8 @@ export interface TUser {
   phone: string;
   image: string;
   role: 'admin' | 'user';
-  status: 'active' | 'inActive';
+  status: 'ban' | 'unBan';
+  isDeleted: boolean;
 }
 
 export type TLoginUser = {

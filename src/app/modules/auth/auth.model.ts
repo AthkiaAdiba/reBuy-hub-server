@@ -43,8 +43,12 @@ const userSchema = new Schema<TUser, UserModel>(
     },
     status: {
       type: String,
-      enum: ['active', 'inActive'],
-      default: 'active',
+      enum: ['ban', 'unBan'],
+      default: 'unBan',
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

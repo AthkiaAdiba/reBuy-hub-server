@@ -24,8 +24,8 @@ const loginUserIntoDB = async (payload: TLoginUser) => {
     throw new AppError(StatusCodes.NOT_FOUND, 'The user _id is not found!');
   }
 
-  if (user.status === 'inActive') {
-    throw new AppError(StatusCodes.NOT_FOUND, 'The user is inActive!');
+  if (user.status === 'ban') {
+    throw new AppError(StatusCodes.NOT_FOUND, 'The user is Banned!');
   }
 
   const idString = user._id.toString();
@@ -44,6 +44,9 @@ const loginUserIntoDB = async (payload: TLoginUser) => {
     address: user?.address,
     phone: user?.phone,
     name: user?.name,
+    isDeleted: user?.isDeleted,
+    status: user?.status,
+    image: user?.image,
   };
 
   const accessToken = createToken(
@@ -85,8 +88,8 @@ const refreshToken = async (token: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, 'The user _id is not found!');
   }
 
-  if (user.status === 'inActive') {
-    throw new AppError(StatusCodes.NOT_FOUND, 'The user is inActive!');
+  if (user.status === 'ban') {
+    throw new AppError(StatusCodes.NOT_FOUND, 'The user is Banned!');
   }
 
   const idString = user._id.toString();
@@ -99,6 +102,9 @@ const refreshToken = async (token: string) => {
     address: user?.address,
     phone: user?.phone,
     name: user?.name,
+    isDeleted: user?.isDeleted,
+    status: user?.status,
+    image: user?.image,
   };
 
   const accessToken = createToken(
