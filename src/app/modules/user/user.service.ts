@@ -1,3 +1,5 @@
+import { StatusCodes } from 'http-status-codes';
+import AppError from '../../errors/AppError';
 import { TUser } from '../auth/auth.interface';
 import { User } from '../auth/auth.model';
 
@@ -10,10 +12,20 @@ const getAllUsersFromDB = async () => {
 const getSingleIUserFromDB = async (id: string) => {
   const result = await User.findById(id);
 
+  if (!result) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This User is not exists!');
+  }
+
   return result;
 };
 
 const updateUserInDB = async (id: string, payload: Partial<TUser>) => {
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This User is not exists!');
+  }
+
   const result = await User.findByIdAndUpdate(id, payload, {
     new: true,
   });
@@ -22,6 +34,12 @@ const updateUserInDB = async (id: string, payload: Partial<TUser>) => {
 };
 
 const deleteSingleUserFromDB = async (id: string) => {
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This User is not exists!');
+  }
+
   const result = await User.findByIdAndUpdate(
     id,
     { isDeleted: true },
@@ -34,6 +52,12 @@ const deleteSingleUserFromDB = async (id: string) => {
 };
 
 const banUserIntoDB = async (id: string) => {
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This User is not exists!');
+  }
+
   const result = await User.findByIdAndUpdate(
     id,
     { status: 'ban' },

@@ -44,13 +44,13 @@ const updateUser = catchAsync(async (req, res) => {
 const deleteUser = catchAsync(async (req, res) => {
   const { id } = req.params;
 
-  await UserServices.deleteSingleUserFromDB(id);
+  const result = await UserServices.deleteSingleUserFromDB(id);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'User is deleted successfully!',
-    data: {},
+    data: result,
   });
 });
 

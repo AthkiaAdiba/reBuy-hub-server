@@ -9,9 +9,15 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user, USER_ROLE.admin),
   validateRequest(ItemValidations.createItemValidationSchema),
   ItemControllers.createItem,
+);
+
+router.get(
+  '/owner-items',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  ItemControllers.getAllItemsOfOwner,
 );
 
 router.get('/:id', ItemControllers.getSingleItem);
@@ -20,11 +26,21 @@ router.get('/', ItemControllers.getAllItems);
 
 router.put(
   '/:id',
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user, USER_ROLE.admin),
   validateRequest(ItemValidations.updateItemValidationSchema),
   ItemControllers.updateItem,
 );
 
-router.delete('/:id', auth(USER_ROLE.user), ItemControllers.deleteItem);
+router.patch(
+  '/:id/status-change',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  ItemControllers.updateItemStatus,
+);
+
+router.delete(
+  '/:id',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  ItemControllers.deleteItem,
+);
 
 export const ListingRoutes = router;

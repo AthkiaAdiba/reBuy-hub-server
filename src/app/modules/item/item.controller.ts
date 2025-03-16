@@ -28,6 +28,18 @@ const getAllItems = catchAsync(async (req, res) => {
   });
 });
 
+const getAllItemsOfOwner = catchAsync(async (req, res) => {
+  const { userId: sellerId } = req.user;
+  const result = await ItemServices.getAllItemsOfOwnerFromDB(sellerId);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Items are retrieved successfully!',
+    data: result,
+  });
+});
+
 const getSingleItem = catchAsync(async (req, res) => {
   const { id } = req.params;
 
@@ -50,7 +62,20 @@ const updateItem = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: 'Product is updated successfully!',
+    message: 'Item is updated successfully!',
+    data: result,
+  });
+});
+
+const updateItemStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await ItemServices.updateItemStatusInDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Item status is changed successfully!',
     data: result,
   });
 });
@@ -71,7 +96,9 @@ const deleteItem = catchAsync(async (req, res) => {
 export const ItemControllers = {
   createItem,
   getAllItems,
+  getAllItemsOfOwner,
   getSingleItem,
+  updateItemStatus,
   updateItem,
   deleteItem,
 };
