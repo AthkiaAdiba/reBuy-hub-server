@@ -23,4 +23,16 @@ router.get(
   TransactionControllers.getMyPurchaseHistory,
 );
 
+router.get(
+  '/sales/:userId',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  TransactionControllers.getMySalesHistory,
+);
+
+router.put(
+  '/:id',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  TransactionControllers.updateTransactionStatus,
+);
+
 export const TransactionRoutes = router;

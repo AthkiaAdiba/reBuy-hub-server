@@ -45,8 +45,36 @@ const getMyPurchaseHistory = catchAsync(async (req, res) => {
   });
 });
 
+const getMySalesHistory = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+
+  const result = await TransactionServices.getMySalesHistoryFromDB(userId);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'My Sales History got successfully!',
+    data: result,
+  });
+});
+
+const updateTransactionStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await TransactionServices.updateTransactionStatusIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Transaction Status has been updated successfully!',
+    data: result,
+  });
+});
+
 export const TransactionControllers = {
   createTransaction,
   verifyPayment,
   getMyPurchaseHistory,
+  getMySalesHistory,
+  updateTransactionStatus,
 };

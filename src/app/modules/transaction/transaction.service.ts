@@ -152,8 +152,27 @@ const getMyPurchaseHistoryFromDB = async (myId: string) => {
   return result;
 };
 
+const getMySalesHistoryFromDB = async (myId: string) => {
+  const result = await TransactionModel.find({ 'items.sellerId': myId });
+  return result;
+};
+
+const updateTransactionStatusIntoDB = async (id: string) => {
+  const result = await TransactionModel.findByIdAndUpdate(
+    id,
+    {
+      transactionStatus: 'Completed',
+    },
+    { new: true },
+  );
+
+  return result;
+};
+
 export const TransactionServices = {
   createTransactionIntoDB,
   verifyPayment,
   getMyPurchaseHistoryFromDB,
+  getMySalesHistoryFromDB,
+  updateTransactionStatusIntoDB,
 };

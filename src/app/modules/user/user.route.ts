@@ -9,17 +9,25 @@ const router = express.Router();
 
 router.get('/', auth(USER_ROLE.admin), UserControllers.getAllUser);
 
-router.get('/:id', auth(USER_ROLE.user), UserControllers.getSingleUser);
+router.get(
+  '/:id',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  UserControllers.getSingleUser,
+);
 
 router.put(
   '/:id',
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user, USER_ROLE.admin),
   validateRequest(UserValidations.updateUserValidationSchema),
   UserControllers.updateUser,
 );
 
 router.put('/:id', auth(USER_ROLE.admin), UserControllers.banUser);
 
-router.delete('/:id', auth(USER_ROLE.user), UserControllers.deleteUser);
+router.delete(
+  '/:id',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  UserControllers.deleteUser,
+);
 
 export const UserRoutes = router;
