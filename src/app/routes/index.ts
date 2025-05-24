@@ -4,6 +4,7 @@ import { ListingRoutes } from '../modules/item/item.route';
 import { UserRoutes } from '../modules/user/user.route';
 import { TransactionRoutes } from '../modules/transaction/transaction.route';
 import { SubscribeRoutes } from '../modules/subscribe/subscribe.route';
+import { ReviewRoutes } from '../modules/review/review.route';
 
 const router = Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: '/subscribe',
     route: SubscribeRoutes,
+  },
+  {
+    path: '/reviews',
+    route: ReviewRoutes,
   },
 ];
 

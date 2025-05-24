@@ -22,7 +22,9 @@ const getAllItemsFromDB = async (query: Record<string, unknown>) => {
   const ItemQuery = new QueryBuilder(ItemModel.find(), query)
     .search(ItemSearchableFields)
     .priceFilter()
-    .filter();
+    .sort()
+    .filter()
+    .paginate();
 
   const result = await ItemQuery.modelQuery;
 
