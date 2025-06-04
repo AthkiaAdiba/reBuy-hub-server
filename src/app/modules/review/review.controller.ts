@@ -67,13 +67,14 @@ const getSingleReview = catchAsync(async (req, res) => {
 const getAllProductReviews = catchAsync(async (req, res) => {
   const { id } = req.params;
 
-  const result = await ReviewServices.getAllProductReviewsFromDB(id);
+  const result = await ReviewServices.getAllProductReviewsFromDB(id, req.query);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Reviews are got successfully!',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

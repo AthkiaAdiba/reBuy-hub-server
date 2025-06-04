@@ -23,6 +23,9 @@ const reviewSchema = new Schema<TReview>(
       type: Schema.Types.ObjectId,
       ref: 'User',
     },
+    userImage: {
+      type: String,
+    },
     productId: {
       type: Schema.Types.ObjectId,
       ref: 'Item',

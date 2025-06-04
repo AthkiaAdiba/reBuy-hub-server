@@ -33,6 +33,20 @@ const updateUserInDB = async (id: string, payload: Partial<TUser>) => {
   return result;
 };
 
+const changeRoleAndStatusInDB = async (id: string, payload: Partial<TUser>) => {
+  const user = await User.findById(id);
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This User is not exists!');
+  }
+
+  const result = await User.findByIdAndUpdate(id, payload, {
+    new: true,
+  });
+
+  return result;
+};
+
 const deleteSingleUserFromDB = async (id: string) => {
   const user = await User.findById(id);
 
@@ -75,4 +89,5 @@ export const UserServices = {
   updateUserInDB,
   deleteSingleUserFromDB,
   banUserIntoDB,
+  changeRoleAndStatusInDB,
 };

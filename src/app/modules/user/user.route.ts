@@ -24,6 +24,12 @@ router.put(
 
 router.put('/:id', auth(USER_ROLE.admin), UserControllers.banUser);
 
+router.patch(
+  '/role-status/:id',
+  auth(USER_ROLE.admin),
+  UserControllers.changeRoleAndStatus,
+);
+
 router.delete(
   '/:id',
   auth(USER_ROLE.user, USER_ROLE.admin),

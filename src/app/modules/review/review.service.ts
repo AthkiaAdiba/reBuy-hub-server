@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../errors/AppError';
 import { User } from '../auth/auth.model';
 import { TReview } from './review.interface';
 import { ReviewModel } from './review.model';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const createReviewIntoDB = async (payload: TReview) => {
   const isAlreadyReviewed = await ReviewModel.findOne({
@@ -28,13 +30,22 @@ const getAllReviewsFromDB = async () => {
   return result;
 };
 
-const getAllProductReviewsFromDB = async (productId: string) => {
-  const result = await ReviewModel.find({
+const getAllProductReviewsFromDB = async (productId: string, query: any) => {
+  const baseQuery = ReviewModel.find({
     publishedStatus: 'Published',
     productId: productId,
   });
 
-  return result;
+  // Pass the Mongoose Query object to QueryBuilder
+  const ItemQuery = new QueryBuilder(baseQuery, query).sort().paginate();
+
+  const meta = await ItemQuery.countTotal();
+  const result = await ItemQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getAllIReviewsGivenOnMyProductFromDB = async (sellerId: string) => {

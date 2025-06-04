@@ -41,6 +41,20 @@ const updateUser = catchAsync(async (req, res) => {
   });
 });
 
+const changeRoleAndStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const userData = req.body;
+
+  const result = await UserServices.changeRoleAndStatusInDB(id, userData);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'User is updated successfully!',
+    data: result,
+  });
+});
+
 const deleteUser = catchAsync(async (req, res) => {
   const { id } = req.params;
 
@@ -73,4 +87,5 @@ export const UserControllers = {
   updateUser,
   deleteUser,
   banUser,
+  changeRoleAndStatus,
 };

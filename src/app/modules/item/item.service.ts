@@ -4,6 +4,7 @@ import AppError from '../../errors/AppError';
 import { TITem } from './item.interface';
 import { ItemModel } from './item.model';
 import { User } from '../auth/auth.model';
+import { ReviewModel } from '../review/review.model';
 
 const createItemIntoDB = async (payload: TITem, sellerId: string) => {
   const result = await ItemModel.create({ ...payload, sellerId });
@@ -26,11 +27,13 @@ const getAllItemsFromDB = async (query: Record<string, unknown>) => {
     .filter()
     .paginate();
 
+  const meta = await ItemQuery.countTotal();
   const result = await ItemQuery.modelQuery;
 
-  // const result = await ItemModel.find();
-
-  return result;
+  return {
+    meta,
+    result,
+  };
 };
 
 const getAllItemsOfOwnerFromDB = async (sellerId: string) => {
@@ -49,7 +52,21 @@ const getSingleItemFromDB = async (id: string) => {
     throw new AppError(StatusCodes.NOT_FOUND, 'This item is not exists!');
   }
 
-  return result;
+  const reviews = await ReviewModel.find({
+    productId: result._id,
+    publishedStatus: 'Published',
+  });
+
+  let averageRating = 0;
+  if (reviews.length > 0) {
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    averageRating = parseFloat((totalRating / reviews.length).toFixed(1));
+  }
+
+  return {
+    ...result.toObject(),
+    averageRating,
+  };
 };
 
 const updateItemInDB = async (id: string, itemDataData: Partial<TITem>) => {
