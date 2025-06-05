@@ -1,12 +1,20 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
 import AppError from '../../errors/AppError';
 import { TUser } from '../auth/auth.interface';
 import { User } from '../auth/auth.model';
+import QueryBuilder from '../../builder/QueryBuilder';
 
-const getAllUsersFromDB = async () => {
-  const result = await User.find();
+const getAllUsersFromDB = async (query: any) => {
+  const UserQuery = new QueryBuilder(User.find(), query).sort().paginate();
 
-  return result;
+  const meta = await UserQuery.countTotal();
+  const result = await UserQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleIUserFromDB = async (id: string) => {

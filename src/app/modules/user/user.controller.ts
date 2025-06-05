@@ -4,13 +4,14 @@ import { StatusCodes } from 'http-status-codes';
 import { UserServices } from './user.service';
 
 const getAllUser = catchAsync(async (req, res) => {
-  const result = await UserServices.getAllUsersFromDB();
+  const result = await UserServices.getAllUsersFromDB(req.query);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Users are retrieved successfully!',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 

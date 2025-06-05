@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from 'http-status-codes';
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
@@ -36,13 +37,23 @@ const getAllItemsFromDB = async (query: Record<string, unknown>) => {
   };
 };
 
-const getAllItemsOfOwnerFromDB = async (sellerId: string) => {
+const getAllItemsOfOwnerFromDB = async (sellerId: string, query: any) => {
   const user = await User.findById(sellerId);
   if (!user) {
     throw new AppError(StatusCodes.NOT_FOUND, 'This user is not exists!');
   }
-  const result = await ItemModel.find({ sellerId: user?._id });
-  return result;
+
+  const baseQuery = ItemModel.find({ sellerId: user?._id });
+
+  const ItemQuery = new QueryBuilder(baseQuery, query).sort().paginate();
+
+  const meta = await ItemQuery.countTotal();
+  const result = await ItemQuery.modelQuery;
+
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleItemFromDB = async (id: string) => {

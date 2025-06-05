@@ -31,13 +31,17 @@ const getAllItems = catchAsync(async (req, res) => {
 
 const getAllItemsOfOwner = catchAsync(async (req, res) => {
   const { userId: sellerId } = req.user;
-  const result = await ItemServices.getAllItemsOfOwnerFromDB(sellerId);
+  const result = await ItemServices.getAllItemsOfOwnerFromDB(
+    sellerId,
+    req.query,
+  );
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'Items are retrieved successfully!',
-    data: result,
+    meta: result.meta,
+    data: result.result,
   });
 });
 
