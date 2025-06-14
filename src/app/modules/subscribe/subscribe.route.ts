@@ -19,4 +19,10 @@ router.get(
   SubscribeControllers.getAllSubscribedUsers,
 );
 
+router.delete(
+  '/:id',
+  auth(USER_ROLE.admin),
+  SubscribeControllers.deleteSubscriber,
+);
+
 export const SubscribeRoutes = router;

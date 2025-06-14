@@ -72,6 +72,20 @@ const updateItem = catchAsync(async (req, res) => {
   });
 });
 
+const addOfferPrice = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const itemData = req.body;
+
+  const result = await ItemServices.addOfferPriceInDB(id, itemData);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Offer Price is added successfully!',
+    data: result,
+  });
+});
+
 const updateItemStatus = catchAsync(async (req, res) => {
   const { id } = req.params;
 
@@ -106,4 +120,5 @@ export const ItemControllers = {
   updateItemStatus,
   updateItem,
   deleteItem,
+  addOfferPrice,
 };

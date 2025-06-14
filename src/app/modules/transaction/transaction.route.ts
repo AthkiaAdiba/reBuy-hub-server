@@ -12,6 +12,12 @@ router.post(
 );
 
 router.get(
+  '/',
+  auth(USER_ROLE.user, USER_ROLE.admin),
+  TransactionControllers.getAllPaidTransactions,
+);
+
+router.get(
   '/verify',
   auth(USER_ROLE.user, USER_ROLE.admin),
   TransactionControllers.verifyPayment,

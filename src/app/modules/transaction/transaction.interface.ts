@@ -1,15 +1,12 @@
 import { Types } from 'mongoose';
 
-// items: {
-//     itemId: Types.ObjectId;
-//   }[];
-
 export type ITransaction = {
   buyerId: Types.ObjectId;
   items: {
     itemId: Types.ObjectId;
     sellerId: Types.ObjectId;
     price: number;
+    quantity: number;
   }[];
   totalPrice: number;
   transactionStatus: 'Pending' | 'Completed';
@@ -29,4 +26,6 @@ export type ITransaction = {
     method: string;
     date_time: string;
   };
+  createdAt?: Date;
+  updatedAt?: Date;
 };

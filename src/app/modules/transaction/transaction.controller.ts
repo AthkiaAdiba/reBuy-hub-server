@@ -45,6 +45,17 @@ const getMyPurchaseHistory = catchAsync(async (req, res) => {
   });
 });
 
+const getAllPaidTransactions = catchAsync(async (req, res) => {
+  const result = await TransactionServices.getAllPaidTransactionsFromDB();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'All paid transactions are got successfully!',
+    data: result,
+  });
+});
+
 const getMySalesHistory = catchAsync(async (req, res) => {
   const { userId } = req.params;
 
@@ -77,4 +88,5 @@ export const TransactionControllers = {
   getMyPurchaseHistory,
   getMySalesHistory,
   updateTransactionStatus,
+  getAllPaidTransactions,
 };

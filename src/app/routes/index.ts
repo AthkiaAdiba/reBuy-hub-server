@@ -6,6 +6,8 @@ import { TransactionRoutes } from '../modules/transaction/transaction.route';
 import { SubscribeRoutes } from '../modules/subscribe/subscribe.route';
 import { ReviewRoutes } from '../modules/review/review.route';
 import { CategoryRoutes } from '../modules/category/category.route';
+import { ContactRoutes } from '../modules/contactUs/contact.route';
+import { OverviewRoutes } from '../modules/overview/overview.route';
 
 const router = Router();
 
@@ -37,6 +39,14 @@ const moduleRoutes = [
   {
     path: '/categories',
     route: CategoryRoutes,
+  },
+  {
+    path: '/contact-us',
+    route: ContactRoutes,
+  },
+  {
+    path: '/overview',
+    route: OverviewRoutes,
   },
 ];
 

@@ -40,7 +40,7 @@ router.put(
 
 router.patch(
   '/:id/status-change',
-  auth(USER_ROLE.admin),
+  auth(USER_ROLE.admin, USER_ROLE.user),
   ReviewControllers.updateReviewStatus,
 );
 

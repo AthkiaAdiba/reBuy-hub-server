@@ -15,17 +15,32 @@ const createSubscribe = catchAsync(async (req, res) => {
 });
 
 const getAllSubscribedUsers = catchAsync(async (req, res) => {
-  const result = await SubscribeServices.getAllSubscribesUsersFromDB();
+  const result = await SubscribeServices.getAllSubscribesUsersFromDB(req.query);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
     message: 'All subscribed users are retrieved successfully!',
-    data: result,
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
+const deleteSubscriber = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  await SubscribeServices.deleteSubscribeFromDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Subscriber is deleted successfully!',
+    data: {},
   });
 });
 
 export const SubscribeControllers = {
   createSubscribe,
   getAllSubscribedUsers,
+  deleteSubscriber,
 };

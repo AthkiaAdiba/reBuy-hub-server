@@ -8,6 +8,9 @@ export type TITem = {
   images: string[];
   sellerId: Types.ObjectId;
   status?: 'available' | 'sold';
-  category: string;
+  category: Types.ObjectId;
+  offerPrice: number;
+  quantity: number;
   location: string;
+  averageRating: number;
 };

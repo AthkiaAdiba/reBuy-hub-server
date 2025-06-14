@@ -5,6 +5,7 @@ import { User } from '../auth/auth.model';
 import { TReview } from './review.interface';
 import { ReviewModel } from './review.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import { ItemModel } from '../item/item.model';
 
 const createReviewIntoDB = async (payload: TReview) => {
   const isAlreadyReviewed = await ReviewModel.findOne({
@@ -100,16 +101,41 @@ const updateReviewInDB = async (
 const updateReviewStatusInDB = async (id: string) => {
   const review = await ReviewModel.findById(id);
 
-  if (review) {
-    throw new AppError(StatusCodes.NOT_FOUND, 'This review is not exists!');
+  if (!review) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This review does not exist!');
   }
 
+  // Update the review's published status
   const result = await ReviewModel.findByIdAndUpdate(
     id,
-    { status: 'Published' },
-    {
-      new: true,
-    },
+    { publishedStatus: 'Published' },
+    { new: true },
+  );
+
+  if (!result) {
+    throw new AppError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Failed to publish review',
+    );
+  }
+
+  // After publishing, recalculate average rating
+  const reviews = await ReviewModel.find({
+    productId: result.productId,
+    publishedStatus: 'Published',
+  });
+
+  let averageRating = 0;
+  if (reviews.length > 0) {
+    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
+    averageRating = parseFloat((totalRating / reviews.length).toFixed(1));
+  }
+
+  // Update the item's averageRating
+  await ItemModel.findByIdAndUpdate(
+    result.productId,
+    { averageRating },
+    { new: true },
   );
 
   return result;
@@ -118,7 +144,7 @@ const updateReviewStatusInDB = async (id: string) => {
 const deleteSingleReviewFromDB = async (id: string) => {
   const review = await ReviewModel.findById(id);
 
-  if (review) {
+  if (!review) {
     throw new AppError(StatusCodes.NOT_FOUND, 'This review is not exists!');
   }
 

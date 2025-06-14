@@ -7,7 +7,8 @@ const createItemValidationSchema = z.object({
     price: z.number({ required_error: 'Item price is required!' }),
     condition: z.string({ required_error: 'Item condition is required!' }),
     images: z.array(z.string()).nonempty('At least one image is required!'),
-    category: z.string({ required_error: 'Item category is required!' }),
+    category: z.string({ required_error: 'CategoryId is required!' }),
+    quantity: z.number({ required_error: 'Quantity is required!' }),
     location: z.string({ required_error: 'Item location is required!' }),
   }),
 });
@@ -22,11 +23,19 @@ const updateItemValidationSchema = z.object({
       .optional(),
     images: z.array(z.string()).optional(),
     category: z.string().optional(),
+    quantity: z.number({ required_error: 'Quantity is required!' }).optional(),
     location: z.string().optional(),
+  }),
+});
+
+const addOrRemoveOfferPriceValidationSchema = z.object({
+  body: z.object({
+    offerPrice: z.number({ required_error: 'Offer price is required!' }),
   }),
 });
 
 export const ItemValidations = {
   createItemValidationSchema,
   updateItemValidationSchema,
+  addOrRemoveOfferPriceValidationSchema,
 };

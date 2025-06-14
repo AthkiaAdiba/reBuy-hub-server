@@ -35,14 +35,26 @@ const itemSchema = new Schema<TITem>(
       default: 'available',
     },
     category: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: 'Category',
       required: [true, 'Item category is required!'],
-      trim: true,
+    },
+    offerPrice: {
+      type: Number,
+      default: 0,
+    },
+    quantity: {
+      type: Number,
+      required: [true, 'Item quantity is required!'],
     },
     location: {
       type: String,
       required: [true, 'Item location is required!'],
       trim: true,
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
     },
   },
   {

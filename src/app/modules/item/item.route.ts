@@ -32,9 +32,10 @@ router.put(
 );
 
 router.patch(
-  '/:id/status-change',
+  '/:id/offer-price',
   auth(USER_ROLE.user, USER_ROLE.admin),
-  ItemControllers.updateItemStatus,
+  validateRequest(ItemValidations.addOrRemoveOfferPriceValidationSchema),
+  ItemControllers.addOfferPrice,
 );
 
 router.delete(

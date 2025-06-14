@@ -18,6 +18,11 @@ const transactionSchema = new Schema<ITransaction>(
           ref: 'User',
         },
         price: Number,
+        quantity: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
       },
     ],
     totalPrice: {

@@ -11,11 +11,11 @@ const createTransactionIntoDB = async (
   transactionData: ITransaction,
   client_ip: string,
 ) => {
-  if (!transactionData?.items?.length)
+  if (!transactionData?.items?.length) {
     throw new AppError(StatusCodes.NOT_ACCEPTABLE, 'Order is not specified');
+  }
 
   const userExists = await User.findById(userId);
-
   if (!userExists) {
     throw new AppError(StatusCodes.NOT_FOUND, 'Please create your account!');
   }
@@ -25,23 +25,46 @@ const createTransactionIntoDB = async (
   const itemsArray = await Promise.all(
     items.map(async (item) => {
       const itemData = await ItemModel.findById(item.itemId);
+
       if (!itemData) {
-        throw new Error(`Item with ID ${item.itemId} not found`);
+        throw new AppError(
+          StatusCodes.NOT_FOUND,
+          `Item with ID ${item.itemId} not found`,
+        );
       }
+
+      const orderedQuantity = item.quantity || 1;
+
+      if (itemData.quantity < orderedQuantity) {
+        throw new AppError(
+          StatusCodes.BAD_REQUEST,
+          `Only ${itemData.quantity} item(s) available for "${itemData.title}".`,
+        );
+      }
+
+      // Determine price using offerPrice
+      const unitPrice =
+        itemData.offerPrice && itemData.offerPrice > 0
+          ? itemData.price - itemData.offerPrice
+          : itemData.price;
+
+      const subTotal = unitPrice * orderedQuantity;
+
+      // Reduce stock
+      itemData.quantity -= orderedQuantity;
+      await itemData.save();
 
       return {
         itemId: item.itemId,
         sellerId: item.sellerId,
-        price: itemData.price, // Fetch price from database
+        price: subTotal,
+        quantity: orderedQuantity,
+        subTotal,
       };
     }),
   );
 
-  // Calculate total price
-  const totalPrice = itemsArray.reduce(
-    (acc, item) => acc + (item?.price || 0),
-    0,
-  );
+  const totalPrice = itemsArray.reduce((acc, item) => acc + item.subTotal, 0);
 
   const orderData = {
     buyerId: userId,
@@ -50,36 +73,30 @@ const createTransactionIntoDB = async (
     email: userExists.email,
     phone: userExists.phone,
     address: userExists.address,
-    shippingPhone: transactionData.phone
-      ? transactionData.phone
-      : userExists.phone,
-    shippingAddress: transactionData.address
-      ? transactionData.address
-      : userExists.address,
+    shippingPhone: transactionData.phone || userExists.phone,
+    shippingAddress: transactionData.address || userExists.address,
     totalPrice,
   };
 
   let result = await TransactionModel.create(orderData);
 
-  // Payment integration logic
+  // Payment integration
   const shurjopayPayload = {
     amount: totalPrice,
     order_id: result?._id,
     currency: 'BDT',
     customer_name: userExists.name,
-    customer_address: orderData.address
-      ? orderData.address
-      : userExists.address,
+    customer_address: orderData.address,
     customer_email: userExists.email,
-    customer_phone: orderData.phone ? orderData.phone : userExists.phone,
-    customer_city: orderData.address ? orderData.address : userExists.address,
-    client_ip, // Update with real client IP
+    customer_phone: orderData.phone || userExists.phone,
+    customer_city: orderData.address,
+    client_ip,
   };
 
   const payment = await transactionUtils.makePaymentAsync(shurjopayPayload);
 
   if (payment?.transactionStatus) {
-    const addedPaymentFieldsOrderData = await TransactionModel.findOneAndUpdate(
+    const updatedOrder = await TransactionModel.findOneAndUpdate(
       { _id: result._id },
       {
         transaction: {
@@ -87,19 +104,17 @@ const createTransactionIntoDB = async (
           transactionStatus: payment.transactionStatus,
         },
       },
-      {
-        new: true,
-      },
+      { new: true },
     );
 
-    if (!addedPaymentFieldsOrderData) {
+    if (!updatedOrder) {
       throw new AppError(
         StatusCodes.INTERNAL_SERVER_ERROR,
         'Failed to update the order!',
       );
     }
 
-    result = addedPaymentFieldsOrderData;
+    result = updatedOrder;
   }
 
   return { result, payment };
@@ -152,6 +167,12 @@ const getMyPurchaseHistoryFromDB = async (myId: string) => {
   return result;
 };
 
+const getAllPaidTransactionsFromDB = async () => {
+  const result = await TransactionModel.find({ status: 'Paid' });
+
+  return result;
+};
+
 const getMySalesHistoryFromDB = async (myId: string) => {
   const result = await TransactionModel.find({ 'items.sellerId': myId });
   return result;
@@ -175,4 +196,5 @@ export const TransactionServices = {
   getMyPurchaseHistoryFromDB,
   getMySalesHistoryFromDB,
   updateTransactionStatusIntoDB,
+  getAllPaidTransactionsFromDB,
 };

@@ -5,7 +5,6 @@ import AppError from '../../errors/AppError';
 import { TITem } from './item.interface';
 import { ItemModel } from './item.model';
 import { User } from '../auth/auth.model';
-import { ReviewModel } from '../review/review.model';
 
 const createItemIntoDB = async (payload: TITem, sellerId: string) => {
   const result = await ItemModel.create({ ...payload, sellerId });
@@ -21,7 +20,10 @@ const getAllItemsFromDB = async (query: Record<string, unknown>) => {
     'location',
   ];
 
-  const ItemQuery = new QueryBuilder(ItemModel.find(), query)
+  const ItemQuery = new QueryBuilder(
+    ItemModel.find().populate('category'),
+    query,
+  )
     .search(ItemSearchableFields)
     .priceFilter()
     .sort()
@@ -43,7 +45,9 @@ const getAllItemsOfOwnerFromDB = async (sellerId: string, query: any) => {
     throw new AppError(StatusCodes.NOT_FOUND, 'This user is not exists!');
   }
 
-  const baseQuery = ItemModel.find({ sellerId: user?._id });
+  const baseQuery = ItemModel.find({ sellerId: user?._id }).populate(
+    'category',
+  );
 
   const ItemQuery = new QueryBuilder(baseQuery, query).sort().paginate();
 
@@ -57,27 +61,13 @@ const getAllItemsOfOwnerFromDB = async (sellerId: string, query: any) => {
 };
 
 const getSingleItemFromDB = async (id: string) => {
-  const result = await ItemModel.findById(id);
+  const result = await ItemModel.findById(id).populate('category');
 
   if (!result) {
     throw new AppError(StatusCodes.NOT_FOUND, 'This item is not exists!');
   }
 
-  const reviews = await ReviewModel.find({
-    productId: result._id,
-    publishedStatus: 'Published',
-  });
-
-  let averageRating = 0;
-  if (reviews.length > 0) {
-    const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-    averageRating = parseFloat((totalRating / reviews.length).toFixed(1));
-  }
-
-  return {
-    ...result.toObject(),
-    averageRating,
-  };
+  return result;
 };
 
 const updateItemInDB = async (id: string, itemDataData: Partial<TITem>) => {
@@ -89,7 +79,21 @@ const updateItemInDB = async (id: string, itemDataData: Partial<TITem>) => {
 
   const result = await ItemModel.findByIdAndUpdate(id, itemDataData, {
     new: true,
-  });
+  }).populate('category');
+
+  return result;
+};
+
+const addOfferPriceInDB = async (id: string, offerPrice: Partial<TITem>) => {
+  const item = await ItemModel.findById(id);
+
+  if (!item) {
+    throw new AppError(StatusCodes.NOT_FOUND, 'This item is not exists!');
+  }
+
+  const result = await ItemModel.findByIdAndUpdate(id, offerPrice, {
+    new: true,
+  }).populate('category');
 
   return result;
 };
@@ -107,7 +111,7 @@ const updateItemStatusInDB = async (id: string) => {
     {
       new: true,
     },
-  );
+  ).populate('category');
 
   return result;
 };
@@ -121,7 +125,7 @@ const deleteSingleItemFromDB = async (id: string) => {
 
   const result = await ItemModel.findByIdAndDelete(id, {
     new: true,
-  });
+  }).populate('category');
 
   return result;
 };
@@ -134,4 +138,5 @@ export const ItemServices = {
   updateItemInDB,
   updateItemStatusInDB,
   deleteSingleItemFromDB,
+  addOfferPriceInDB,
 };
